@@ -41,32 +41,34 @@ videoRouter.get('/:id', (req: Request, res: Response) => {
 });
 videoRouter.post('/', (req: Request<{}, {}, CreateVideoInputModel>, res: Response) => {
     const {title, author, availableResolutions} = req.body;
+    const errorsMessages: {message: string; field: string}[] = [];
 // Валидация
     if (!title || title.trim().length > 40) {
-        res.status(400).json({
-            errorsMessages: [{ message: 'Title is required and should be less than 40 characters', field: 'title' }]
+        errorsMessages.push({
+            message: 'Title is required and should be less than 40 characters', field: 'title'
         });
-        return;
     }
     if (!author || author.trim().length > 20) {
-        res.status(400).json({
-            errorsMessages: [{ message: 'Author is required and should be less than 20 characters', field: 'author' }]
+        errorsMessages.push({
+            message: 'Author is required and should be less than 20 characters', field: 'author'
         });
-        return;
     }
     const validResolutions: AvailableResolutions[] = ['P144', 'P240', 'P360', 'P480', 'P720', 'P1080', 'P1440', 'P2160'];
     if (!validResolutions || !Array.isArray(validResolutions)   || validResolutions.length === 0 ) {
-        res.status(400).json({
-            errorsMessages: [
-                { message: 'At least one resolution should be added', field: 'availableResolutions' }]
+        errorsMessages.push({
+                message: 'At least one resolution should be added', field: 'availableResolutions'
         });
-        return;
-    }
-    for(let resolution of availableResolutions) {
-        if(!validResolutions.includes(resolution)) {
-            res.status(400).json({ message: `Invalid resolution: ${resolution}` });
-            return;
+    } else {
+        for (let resolution of availableResolutions) {
+            if (!validResolutions.includes(resolution)) {
+                errorsMessages.push({message: `Invalid resolution: ${resolution}`, field: 'availableResolutions'});
+                break;
+            }
         }
+    }
+    if (errorsMessages.length > 0) {
+        res.status(400).json({errorsMessages})
+        return;
     }
     const newVideo: Video = {
         id: dbVideos.length + 1,
@@ -129,7 +131,7 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
         });
         return;
     }
-    if (!publicationDate) {
+    if (!publicationDate || isNaN(Date.parse(publicationDate))) {
         res.status(400).json({
             errorsMessages: [
                 { message: 'publicationDate must be a valid date string', field: 'publicationDate' }]
