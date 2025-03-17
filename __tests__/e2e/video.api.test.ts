@@ -19,7 +19,8 @@ describe('/videos', () => {
             .expect(400, {
                 errorsMessages: [
                     { message: 'Title is required and should be less than 40 characters', field: 'title' },
-                    //{ message: 'Author is required and should be less than 20 characters', field: 'author' },
+                    { message: 'Author is required and should be less than 20 characters', field: 'author' },
+                    { message: 'At least one resolution should be added', field: 'availableResolutions' }
                 ],
             });
         const res = await request(app).get('/videos');

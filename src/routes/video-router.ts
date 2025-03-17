@@ -54,7 +54,7 @@ videoRouter.post('/', (req: Request<{}, {}, CreateVideoInputModel>, res: Respons
         });
     }
     const validResolutions: AvailableResolutions[] = ['P144', 'P240', 'P360', 'P480', 'P720', 'P1080', 'P1440', 'P2160'];
-    if (!validResolutions || !Array.isArray(validResolutions)   || validResolutions.length === 0 ) {
+    if (!availableResolutions || !Array.isArray(availableResolutions)   || availableResolutions.length === 0 ) {
         errorsMessages.push({
                 message: 'At least one resolution should be added', field: 'availableResolutions'
         });
@@ -92,7 +92,7 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
     }
     const errorsMessages: {message: string; field: string}[] = [];
 // Опять куча валидаций
-    if (!title || typeof title !== 'string' || title.trim().length > 40) {
+    if (!title || title.trim().length > 40) {
         errorsMessages.push({
             message: 'Title is required and should be less than 40 characters', field: 'title'
         });
@@ -114,7 +114,7 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
             break;
         }
     }
-    if (typeof canBeDownloaded !== 'boolean') {
+    if (canBeDownloaded === undefined) {
         errorsMessages.push({
             message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded'
         });
