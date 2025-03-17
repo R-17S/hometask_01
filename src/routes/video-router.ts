@@ -99,7 +99,7 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
     }
     if (!author || author.trim().length > 20) {
         errorsMessages.push({
-            message: 'Author is required and should be less than 40 characters', field: 'author'
+            message: 'Author is required and should be less than 20 characters', field: 'author'
         });
     }
     const validResolutions: AvailableResolutions[] = ['P144', 'P240', 'P360', 'P480', 'P720', 'P1080', 'P1440', 'P2160'];
@@ -124,7 +124,7 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
             message: 'minAgeRestriction must be between 1 and 18 or null', field: 'minAgeRestriction'
         });
     }
-    if (!publicationDate || isNaN(Date.parse(publicationDate))) {
+    if (!publicationDate ||  !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(publicationDate)) {
         errorsMessages.push({
             message: 'publicationDate must be a valid date string', field: 'publicationDate'
         });
