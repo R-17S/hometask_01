@@ -6,8 +6,7 @@
   "license": "MIT",
   "scripts": {
     "watch": "tsc -w",
-    "dev": "nodemon .\\dist\\index.js",
-    "start": "node index.js",
+    "start": "nodemon .\\dist\\index.js",
     "test": "jest"
   },
   "dependencies": {
