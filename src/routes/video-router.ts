@@ -90,52 +90,47 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
         res.status(404).json({ message: 'Video not found' });
         return;
     }
+    const errorsMessages: {message: string; field: string}[] = [];
 // Опять куча валидаций
     if (!title || typeof title !== 'string' || title.trim().length > 40) {
-        res.status(400).json({
-            errorsMessages: [{ message: 'Title is required and should be less than 40 characters', field: 'title' }]
+        errorsMessages.push({
+            message: 'Title is required and should be less than 40 characters', field: 'title'
         });
-        return;
     }
     if (!author || author.trim().length > 20) {
-        res.status(400).json({
-            errorsMessages: [{ message: 'Author is required and should be less than 40 characters', field: 'author' }]
+        errorsMessages.push({
+            message: 'Author is required and should be less than 40 characters', field: 'author'
         });
-        return;
     }
     const validResolutions: AvailableResolutions[] = ['P144', 'P240', 'P360', 'P480', 'P720', 'P1080', 'P1440', 'P2160'];
     if (!availableResolutions || !Array.isArray(availableResolutions) || availableResolutions.length === 0) {
-        res.status(400).json({
-            errorsMessages: [
-                { message: 'At least one resolution should be added', field: 'availableResolutions' }]
+        errorsMessages.push({
+            message: 'At least one resolution should be added', field: 'availableResolutions'
         });
-        return;
     }
     for (const resolution of availableResolutions) {
         if (!validResolutions.includes(resolution)) {
-            res.status(400).json({message: `Invalid resolution: ${resolution}`});
-            return;
+            errorsMessages.push({message: `Invalid resolution: ${resolution}`, field: 'availableResolutions'})
+            break;
         }
     }
     if (typeof canBeDownloaded !== 'boolean') {
-        res.status(400).json({
-            errorsMessages: [
-                { message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded' }]
+        errorsMessages.push({
+            message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded'
         });
-        return;
     }
     if (minAgeRestriction !== null && (minAgeRestriction < 1 || minAgeRestriction > 18)) {
-        res.status(400).json({
-            errorsMessages: [
-                { message: 'minAgeRestriction must be between 1 and 18 or null', field: 'minAgeRestriction' }]
+        errorsMessages.push({
+            message: 'minAgeRestriction must be between 1 and 18 or null', field: 'minAgeRestriction'
         });
-        return;
     }
     if (!publicationDate || isNaN(Date.parse(publicationDate))) {
-        res.status(400).json({
-            errorsMessages: [
-                { message: 'publicationDate must be a valid date string', field: 'publicationDate' }]
+        errorsMessages.push({
+            message: 'publicationDate must be a valid date string', field: 'publicationDate'
         });
+    }
+    if (errorsMessages.length > 0) {
+        res.status(400).json({errorsMessages})
         return;
     }
     foundVideo.title = title;
