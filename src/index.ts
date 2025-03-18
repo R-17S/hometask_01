@@ -6,6 +6,8 @@ const port = 3000;
 
 // Middleware для обработки JSON
 app.use(express.json());
+// ngrok / serveo / localhost:run /
+// node dist/index.js -> tsc -w && node dist/index.js
 
 export type AvailableResolutions = "P144" | "P240" | "P360" | "P480" | "P720" | "P1080" | "P1440" | "P2160";
 export type Video = {
