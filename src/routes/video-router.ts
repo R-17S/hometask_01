@@ -1,6 +1,6 @@
 import {Request, Response,Router} from "express";
 import {AvailableResolutions, CreateVideoInputModel, UpdateVideoInputModel, Video} from "../index";
-
+import {addDays} from 'date-fns'
 export const dbVideos: Video[] = [
     {
         id: 1,
@@ -70,14 +70,15 @@ videoRouter.post('/', (req: Request<{}, {}, CreateVideoInputModel>, res: Respons
         res.status(400).json({errorsMessages})
         return;
     }
+    const createdAt = new Date()
     const newVideo: Video = {
         id: dbVideos.length + 1,
         title,
         author,
         canBeDownloaded: false,
         minAgeRestriction: null,
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        createdAt: createdAt.toISOString(),
+        publicationDate: addDays(createdAt, 1).toISOString(),
         availableResolutions,
     }
     dbVideos.push(newVideo)
@@ -114,7 +115,7 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
             break;
         }
     }
-    if (canBeDownloaded === undefined) {
+    if (canBeDownloaded === undefined || typeof (canBeDownloaded as unknown) !== 'boolean') {
         errorsMessages.push({
             message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded'
         });
@@ -124,9 +125,10 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
             message: 'minAgeRestriction must be between 1 and 18 or null', field: 'minAgeRestriction'
         });
     }
-    if (!publicationDate || isNaN(Date.parse(publicationDate))) {
+    const dateIsoPattern = new RegExp('(\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z))|(\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z))|(\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z))', "gmi")
+    if (!publicationDate || (typeof publicationDate as unknown) !== 'string' ||  !publicationDate.match(dateIsoPattern)) {
         errorsMessages.push({
-            message: `publicationDate must be a valid date string^ ${publicationDate}`, field: 'publicationDate'
+            message: `publicationDate must be a valid date string`, field: 'publicationDate'
         });
     }
     if (errorsMessages.length > 0) {
