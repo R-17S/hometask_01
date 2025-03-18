@@ -124,9 +124,9 @@ videoRouter.put('/:id', (req: Request<{id: string}, {}, UpdateVideoInputModel>, 
             message: 'minAgeRestriction must be between 1 and 18 or null', field: 'minAgeRestriction'
         });
     }
-    if (!publicationDate ||  !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(publicationDate)) {
+    if (!publicationDate || isNaN(Date.parse(publicationDate))) {
         errorsMessages.push({
-            message: 'publicationDate must be a valid date string', field: 'publicationDate'
+            message: `publicationDate must be a valid date string^ ${publicationDate}`, field: 'publicationDate'
         });
     }
     if (errorsMessages.length > 0) {
